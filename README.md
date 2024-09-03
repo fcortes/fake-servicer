@@ -1,6 +1,8 @@
 # Fake Servicer
 
-Minimalistic FastAPI-based mock server that lets you simulate APIs quickly, without complex setups or waiting for real service
+Minimalistic[^1] FastAPI-based mock server that lets you simulate APIs quickly, without complex setups or waiting for real service
+
+[^1]: No more than 100 lines
 
 It dynamically reads and realoads the python modules defined on `/app/services`
 which must expose a standard [FastAPI Router](https://fastapi.tiangolo.com/tutorial/bigger-applications/?h=router#apirouter) named `router` with any required mocked endpoint.
@@ -51,8 +53,8 @@ run the following commands to test some mocked endpoints
 ```
 docker compose run --rm http http://example/users
 docker compose run --rm http http://other_service/users
-docker compose run --rm http http://mock-services/example/users
-docker compose run --rm http http://mock-services/other_service/users
+docker compose run --rm http http://fake-services/example/users
+docker compose run --rm http http://fake-services/other_service/users
 ```
 
 ## Possible (not yet implemented) extensions
