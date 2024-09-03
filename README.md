@@ -1,8 +1,9 @@
 # Fake Servicer
 
-[FastAPI](https://fastapi.tiangolo.com/) server that autoloads and hot-reloads 
-services defined in files stored in `/app/services`. Each file can define a
-service using a standard FastAPI [Router](https://fastapi.tiangolo.com/tutorial/bigger-applications/?h=router#apirouter).
+Minimalistic FastAPI-based mock server that lets you simulate APIs quickly, without complex setups or waiting for real service
+
+It dynamically reads and realoads the python modules defined on `/app/services`
+which must expose a standard [FastAPI Router](https://fastapi.tiangolo.com/tutorial/bigger-applications/?h=router#apirouter) named `router` with any required mocked endpoint.
 
 ```python
 # ./mocked-services/some_service.py
@@ -17,17 +18,13 @@ class ThingResponse(BaseModel):
   name: str
 
 
-@router.get('/thing', response={200: ThingResponse, 403: str})
-def get_thing(id: number):
-  import random
-
-  if random.random() < 0.1:
-    return 403, "Auth error"
-
-  return 200, { "id": id, "name": faker.name() }
+@router.get('/thing/{id}', response_model=ThingResponse)
+def get_thing(id: int):
+  return 200, { "id": id, "name": "plumbus" }
 ```
 
-You can then serve it on a docker compose project by defining a new service
+You can then add it as a new service into your project docker compose file so
+it exposes all mock endpoints to the connected containers
 
 ```yaml
 services:
@@ -39,15 +36,11 @@ services:
     mounts: ['/var/run/docker.sock']
 ```
 
-While mounting the docker socket is optional, if available, the service will
-reattach the container to its only network and set each found mocked service
-name as an alias for the container. By doing this other containers on the same
-network can access the mocked services by using `http://some_service` as the
-base url (i.e. port 80 o host with the same name as the python module defining
-the router).
-
-The services will also be available on `http://fake-services/some_service` which
-will work even when no docker socket is found.
+Containers connected to the same network (the default docker compose project 
+network in the previous example) can access mocked endpoints by making requests
+to
+- `http://some_service/some-endpoint` (only if the docker socket is mounted)
+- `http://fake-services/some_service/some-endpoint`
 
 ## Demo
 
@@ -62,9 +55,9 @@ docker compose run --rm http http://mock-services/example/users
 docker compose run --rm http http://mock-services/other_service/users
 ```
 
-## Possible not yet implemented extensions
+## Possible (not yet implemented) extensions
 
-## Admin urls (WIP)
+### Admin urls (WIP)
 You'll also be able to dynamically control the behaviour of endpoints by making
 requests to admin endpoints on the `/__admin` namespace.
 
@@ -78,9 +71,9 @@ requests to admin endpoints on the `/__admin` namespace.
 }
 ```
 
-## Next request response override (WIP)
-By including a `X-Fake-Servicer-Next-Request-{Status,Body,Headers}` header, any
-the specified response object will be overriden. This allows using the same
+### Next request response override (WIP)
+By including a `X-Fake-Servicer-Next-Request-{Status,Body,Headers}` header, the
+specified response object will be overriden. This allows using the same
 endpoints to simulate errors or other conditions
 
 ```python
@@ -107,7 +100,7 @@ def test_some_service_auth_error_shows_relevant_message(client):
 
 ```
 
-One caveat of this approach is that the application stops being
-completely stateless, thus not completely thread or race-condition safe. Two
+One caveat of these approaches is that the application is not longer completely
+stateless, so not completely "multi-client" or race-condition safe either. Two
 parallel tests may try to override the same endpoint in a short span of time
-which would almost definitely end up in flaky tests.
+which may end up producing flaky tests.
