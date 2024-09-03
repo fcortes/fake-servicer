@@ -1,0 +1,11 @@
+services:
+  http:
+    image: alpine/httpie
+    deploy:
+      replicas: 0
+
+  mock-services:
+    build: .
+    volumes: 
+    - "./:/app"
+    - "/var/run/docker.sock:/var/run/docker.sock"

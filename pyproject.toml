@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "fake-servicer"
+version = "0.1.0"
+description = ""
+authors = ["Felipe Cortés <fcortess@pm.me>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+docker = "^7.1.0"
+fastapi = {extras = ["standard"], version = "^0.112.2"}
+
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.6.3"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
