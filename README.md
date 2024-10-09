@@ -33,7 +33,7 @@ services:
   # ... your real services
 
   fake-services:
-    image: fake-servicer
+    image: ghcr.io/fcortes/fake-servicer
     volumes: ['./mocked-services:/app/services']
     mounts: ['/var/run/docker.sock']
 ```
