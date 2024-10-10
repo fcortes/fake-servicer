@@ -35,7 +35,7 @@ services:
   fake-services:
     image: ghcr.io/fcortes/fake-servicer
     volumes: ['./mocked-services:/app/services']
-    mounts: ['/var/run/docker.sock']
+    mounts: ['/var/run/docker.sock:/var/run/docker.sock']
 ```
 
 Containers connected to the same network (the default docker compose project 
