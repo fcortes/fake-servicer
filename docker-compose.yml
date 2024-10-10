@@ -1,11 +1,15 @@
 services:
   http:
     image: alpine/httpie
-    deploy:
-      replicas: 0
+    command: get http://example_service/users
+    depends_on:
+      mock-services:
+        condition: service_healthy
 
   mock-services:
+    image: ghcr.io/fcortes/fake-servicer:main
     build: .
-    volumes: 
-    - "./:/app"
+
+    volumes:
+    - "./services:/app/services"
     - "/var/run/docker.sock:/var/run/docker.sock"
